@@ -1,0 +1,118 @@
+#!/bin/bash
+# Carlos Ultra Setup - Creates the ULTRASIMPLE test environment
+
+set -e
+
+echo "🚀 Carlos Ultra Test Setup"
+echo "=========================="
+
+TARGET_DIR="${1:-$(pwd)}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "📁 Setting up Carlos Ultra in: $TARGET_DIR"
+cd "$TARGET_DIR"
+
+# Create the ULTRASIMPLE carlos.md
+cat > carlos.md << 'EOF'
+# Carlos Ultra Tasks
+
+[ ] html-service: Create index.html with "bloop bloop"
+[ ] css-service: Create styles.css with body{font-family:monospace} (after: html-service)
+[ ] js-service: Create main.js with console.log("bleep bleep") (after: css-service)
+EOF
+
+echo "✅ Created carlos.md with ultra-simple tasks"
+
+# Create test repositories
+REPOS=(
+    "html-service:HTML Service"
+    "css-service:CSS Service" 
+    "js-service:JavaScript Service"
+)
+
+for repo_info in "${REPOS[@]}"; do
+    IFS=':' read -r repo_name repo_desc <<< "$repo_info"
+    
+    echo ""
+    echo "🔧 Setting up $repo_name..."
+    
+    # Create directory
+    mkdir -p "$repo_name"
+    cd "$repo_name"
+    
+    # Initialize git
+    if [ ! -d ".git" ]; then
+        git init
+        
+        # Create package.json for naming
+        cat > package.json << EOF
+{
+  "name": "$repo_name",
+  "version": "1.0.0",
+  "description": "$repo_desc for Carlos Ultra testing"
+}
+EOF
+
+        # Create basic README
+        cat > README.md << EOF
+# $repo_desc
+
+This is a Carlos Ultra test service.
+
+## 🤖 For AI Agents
+
+**ONLY command you need:**
+\`\`\`bash
+.carlos/work
+\`\`\`
+
+## 📋 EXACT Steps:
+
+1. Run \`.carlos/work\`
+2. Read your task description  
+3. **ACTUALLY CREATE THE FILES** (write the code!)
+4. When asked, choose:
+   - **1** = YES, I implemented it (mark DONE)
+   - **2** = NO, I'll check later
+
+## ⚠️ CRITICAL:
+
+**Only choose option 1 if you ACTUALLY wrote the code files!**
+
+- ✅ Created the file with correct content → Press 1
+- ❌ Just read the task but didn't code → Press 2
+
+Don't just read - implement first, then mark done.
+
+**Agent: $repo_name**
+EOF
+
+        git add .
+        git commit -m "Initial $repo_name setup"
+        echo "   ✅ Git repository initialized"
+    fi
+    
+    # Install Carlos Ultra
+    echo "   🔧 Installing Carlos Ultra agent..."
+    "$SCRIPT_DIR/carlos-ultra-init.sh"
+    
+    cd ..
+done
+
+echo ""
+echo "🎉 Carlos Ultra Test Environment Complete!"
+echo "=========================================="
+echo ""
+echo "📋 Created tasks:"
+echo "   1. html-service: Create index.html with 'bloop bloop'"
+echo "   2. css-service: Create styles.css with body{font-family:monospace}"  
+echo "   3. js-service: Create main.js with console.log('bleep bleep')"
+echo ""
+echo "🚀 To test:"
+echo "   cd html-service"
+echo "   .carlos/work"
+echo ""
+echo "💡 Each agent only has ONE command: .carlos/work"
+echo "💡 Check overall status with: .carlos/status (from any agent)"
+echo ""
+echo "📊 View tasks: cat carlos.md"
